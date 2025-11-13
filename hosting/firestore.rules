@@ -1,0 +1,21 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+  	function isUserLoggedIn(){
+    	return request.auth.uid != null;
+    }
+    function isUserAdmin(){
+    	return request.auth.token.role == 'admin' || get(/database/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+  	match /users/{userId}{
+    	allow read: if isUserLoggedIn() && request.auth.token.firebase.sign_in_provider != 'anonymous';
+      allow update: if request.auth.uid == userId || isUserAdmin();
+      allow create: if isUserAdmin();
+      allow delete: if isUserAdmin();
+    }
+	match /employees/{id}  {
+		allow read, update, create, delete: if isUserAdmin();
+	}
+  }
+}
