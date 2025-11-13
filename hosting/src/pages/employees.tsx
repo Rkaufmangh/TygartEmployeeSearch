@@ -5,7 +5,7 @@ import { EditDescriptor } from "@progress/kendo-react-data-tools";
 import { Grid, GridColumn, GridCustomCellProps, GridDataStateChangeEvent, GridFilterChangeEvent, GridSelectionChangeEvent, GridToolbar } from "@progress/kendo-react-grid";
 import { CompositeFilterDescriptor, SortDescriptor, process } from "@progress/kendo-data-query";
 import { Button } from "@progress/kendo-react-buttons";
-import { editEmployee } from "../firebase/firestore";
+import { editEmployee, deleteEmployee } from "../firebase/firestore";
 import { Employee } from "../models/employee";
 import EmployeeEdit from "../components/form/employee-edit";
 import { EmployeeContext } from "../logic/EmployeeContext";
@@ -83,6 +83,27 @@ const navigate = useNavigate();
 			console.error("Error updating employee: ", error);
 		});
 		
+	};
+	const onDeleteClick = async () => {
+		if (!selectedId) {
+			alert('Please select an employee to delete.');
+			return;
+		}
+		const target = employees.find(e => e.id === selectedId);
+		if (!target) {
+			alert('Selected employee not found.');
+			return;
+		}
+		if (!window.confirm(`Delete ${target.fullname || 'this employee'}? This cannot be undone.`)) {
+		 return;
+		}
+		try {
+			await deleteEmployee(selectedId);
+			setSelectedId(null);
+		} catch (err) {
+			console.error(err);
+			alert('Failed to delete employee.');
+		}
 	};
 	    const onDataStateChange = (event: GridDataStateChangeEvent) => {
         const { dataState } = event;
@@ -185,6 +206,10 @@ const navigate = useNavigate();
 					&nbsp;
 					<Button themeColor={'primary'} type="button" onClick={onEditClick} title="Edit Selected Employee">
 						Edit Selected Employee
+					</Button>
+					&nbsp;
+					<Button themeColor={'error'} type="button" onClick={onDeleteClick} title="Delete Selected Employee">
+						Delete Selected Employee
 					</Button>
                 </GridToolbar>
 						</Grid>{editItem ? <EmployeeEdit employee={editItem} onClose={handleCancelEdit} onSave={saveChanges} />: null

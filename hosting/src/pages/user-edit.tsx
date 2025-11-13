@@ -9,6 +9,7 @@ import { Input, Switch } from '@progress/kendo-react-inputs';
 import { MultiSelect } from '@progress/kendo-react-dropdowns';
 import { Button } from '@progress/kendo-react-buttons';
 import { AnyUser } from '../models/tygart-user';
+import { deleteUser } from '../firebase/users';
 
 
 const UserEdit: React.FC = () => {
@@ -93,6 +94,20 @@ const UserEdit: React.FC = () => {
   };
 
   const onCancel = () => navigate('/users');
+  const onDelete = async () => {
+    if (!user?.id) {
+      alert('User must be saved before it can be deleted.');
+      return;
+    }
+    if (!window.confirm('Delete this user permanently? This cannot be undone.')) return;
+    try {
+      await deleteUser(user.id);
+      navigate('/users');
+    } catch (err) {
+      console.error(err);
+      alert('Failed to delete user.');
+    }
+  };
 
   // Field renderers
   const TextField = (fieldProps: FieldRenderProps) => {

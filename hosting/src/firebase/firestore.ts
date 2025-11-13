@@ -1,4 +1,4 @@
-import { onSnapshot, collection, where, orderBy, query, collectionGroup, addDoc, setDoc, doc, updateDoc, getDocs } from "firebase/firestore";
+import { onSnapshot, collection, where, orderBy, query, collectionGroup, addDoc, setDoc, doc, updateDoc, getDocs, deleteDoc } from "firebase/firestore";
 import {db} from "./firebase";
 import { Employee } from "../models/employee";
 const EMPLOYEES_COLLECTION = 'employees';
@@ -102,6 +102,10 @@ export async function editEmployee(emp:Employee){
 	const sanitized:any = sanitizeForFirestore(emp);
 	const skillNames = (sanitized?.skills || []).map((s:any)=> s?.skill).filter((s:any)=>!!s);
 	await setDoc(empRef,{ ...sanitized, skillNames });
+}
+export async function deleteEmployee(id: string) {
+	const empRef = doc(db, EMPLOYEES_COLLECTION, id);
+	await deleteDoc(empRef);
 }
 export function getCertifications(setCertifications:(c:string[])=>void){
 	const unsubscribe = onSnapshot(collection(db,'certifications'), (snapshot)=>{
