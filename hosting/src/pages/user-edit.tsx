@@ -158,8 +158,6 @@ const UserEdit: React.FC = () => {
               <Field name={'displayName'} label={'Display Name'} component={TextField} />
               <Field name={'email'} label={'Email'} component={TextField} />
               <Field name={'phoneNumber'} label={'Phone'} component={TextField} />
-              <Field name={'disabled'} label={'Active'} component={DisabledField} />
-              <Field name={'roles'} label={'Roles'} component={RolesField} />
               <div className="space-x-2 mt-4">
                 <Button themeColor={'primary'} disabled={!formProps.allowSubmit} type={'submit'}>Save</Button>
                 <Button type={'button'} onClick={onCancel}>Cancel</Button>

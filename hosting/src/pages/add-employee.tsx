@@ -114,6 +114,21 @@ const AddEmployee = () => {
             expirationYear: normalizeMonthDate(c?.expirationYear)
         }))
         : [];
+    const normalizedSkills = React.useMemo(() => {
+        if (!Array.isArray(initialEmployee?.skills)) {
+            return [];
+        }
+        return initialEmployee.skills
+            .filter((s: any) => s && typeof s.skill === 'string' && s.skill.trim().length > 0)
+            .map((s: any) => ({
+                skill: s.skill,
+                yearsExperience:
+                    typeof s.yearsExperience === 'number' && !isNaN(s.yearsExperience)
+                        ? s.yearsExperience
+                        : 0,
+                proficiency: typeof s.proficiency === 'string' ? s.proficiency : ''
+            }));
+    }, [initialEmployee?.skills]);
 
     // Non-admins may edit only their own record; allow when flagged by profile
     React.useEffect(() => {
@@ -159,7 +174,7 @@ const AddEmployee = () => {
                 initialValues={{
                     firstName: initialEmployee?.name?.first ?? '',
                     lastName: initialEmployee?.name?.last ?? '',
-                    skills: initialEmployee?.skills ?? [],
+                    skills: normalizedSkills,
                     certifications: normalizedCertifications,
                     education: initialEmployee?.education ?? [],
                     languages: initialEmployee?.languages ?? [],

@@ -2,15 +2,15 @@ import React, {useState, useContext, useEffect, useMemo} from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../logic/AuthContext";
 import { EditDescriptor } from "@progress/kendo-react-data-tools";
-import { Grid, GridColumn, GridColumnsStateChangeEvent, GridCustomCellProps, GridDataStateChangeEvent, GridFilterChangeEvent, GridSelectionChangeEvent, GridToolbar } from "@progress/kendo-react-grid";
-import { CompositeFilterDescriptor, DataResult, SortDescriptor, process } from "@progress/kendo-data-query";
+import { Grid, GridColumn, GridCustomCellProps, GridDataStateChangeEvent, GridFilterChangeEvent, GridSelectionChangeEvent, GridToolbar } from "@progress/kendo-react-grid";
+import { CompositeFilterDescriptor, SortDescriptor, process } from "@progress/kendo-data-query";
 import { Button } from "@progress/kendo-react-buttons";
 import { editEmployee } from "../firebase/firestore";
 import { Employee } from "../models/employee";
 import EmployeeEdit from "../components/form/employee-edit";
 import { EmployeeContext } from "../logic/EmployeeContext";
 
-interface GridState extends DataResult{
+interface GridState {
 	sort?: SortDescriptor[];
 	take?:number;
 	skip?: number;
@@ -50,16 +50,11 @@ const navigate = useNavigate();
 		return employees.find(e => e.id === id) || null;
 	}, [edit, employees]);
 	const [dataState, setDataState] = useState<GridState>({
-		data: employees,
-		total: employees.length,
 		filter: {logic: 'and', filters:[]},
 		skip: 0,
 		take: 10,
 		sort: [{field: 'fullname', dir: 'asc'}]
 	});
-	useEffect(() => {
-setDataState(prev => ({ ...prev, data: employees, total: employees.length }));
-}, [employees]);
 	const [columns] = useState([
 		{field: 'id', title: 'ID', width: 0, hidden: true},
 		{field: 'fullname', title: 'Name', width: 200},
@@ -70,10 +65,6 @@ setDataState(prev => ({ ...prev, data: employees, total: employees.length }));
 		{field: 'clearanceLevel', title: 'Clearance', width: 200},
 		{ width: 150, title: '', cell: MyEditCommandCell, sortable: false, filterable: false }
 	]);
-	const [columnsState, setColumnsState] = React.useState(() => {
-        const loadedColumns = localStorage.getItem('gridColumns');
-        return loadedColumns ? JSON.parse(loadedColumns) : null;
-    });
 	const enterEdit = (e: Employee) => {
 		if(!e.id){
 			return;
@@ -93,27 +84,6 @@ setDataState(prev => ({ ...prev, data: employees, total: employees.length }));
 		});
 		
 	};
-	const saveStateToLocalStorage = () => {
-        const state = {
-            dataState,
-            columnsState
-        };
-        localStorage.setItem('gridState', JSON.stringify(state));
-    };
-
-    const loadStateFromLocalStorage = () => {
-        const savedState = localStorage.getItem('gridState');
-        if (savedState) {
-            const { dataState: savedDataState, columnsState: savedColumns } = JSON.parse(savedState);
-            setDataState(savedDataState);
-            setColumnsState(savedColumns);
-        }
-    };
-
-    const onColumnsStateChange = (event: GridColumnsStateChangeEvent) => {
-        setColumnsState(event.columnsState);
-    };
-
 	    const onDataStateChange = (event: GridDataStateChangeEvent) => {
         const { dataState } = event;
         if (dataState) {
@@ -135,7 +105,7 @@ setDataState(prev => ({ ...prev, data: employees, total: employees.length }));
 				alert('Please select an employee to edit.');
 				return;
 			}
-			const selected = (dataState.data as Employee[]).find(e => e.id === selectedId);
+			const selected = employees.find(e => e.id === selectedId);
 			if (!selected) {
 				alert('Selected employee not found.');
 				return;
@@ -166,7 +136,7 @@ setDataState(prev => ({ ...prev, data: employees, total: employees.length }));
 			setSelectedId(Object.keys(event.select)[0]);
 		}
 	
-	const processedData = process(dataState.data, {
+	const processedData = process(employees, {
         filter: dataState.filter,
         sort: dataState.sort,
         skip: dataState.skip,
@@ -201,8 +171,6 @@ setDataState(prev => ({ ...prev, data: employees, total: employees.length }));
 						selectable={{ enabled: true, mode: 'single' }}
                 filter={dataState.filter}
                 onFilterChange={onFilterChange}
-                columnsState={columnsState}
-                onColumnsStateChange={onColumnsStateChange}
                 onDataStateChange={onDataStateChange}
                 skip={dataState.skip}
                 take={dataState.take}
@@ -211,19 +179,6 @@ setDataState(prev => ({ ...prev, data: employees, total: employees.length }));
                     return <GridColumn key={index} {...column} />;
                 })}
                 <GridToolbar>
-                    <Button
-                        title="Export to Excel"
-                        themeColor={'primary'}
-                        type="button"
-                        onClick={saveStateToLocalStorage}
-                    >
-                        Save Data
-                    </Button>
-                    &nbsp;
-                    <Button themeColor={'primary'} type="button" onClick={loadStateFromLocalStorage} title="Load Data">
-                        Load Data
-                    </Button>
-					&nbsp;
 					<Button themeColor={'primary'} type="button" onClick={()=>navigate('/addemployee')} title="Add Employee">
 						Add Employee
 					</Button>
