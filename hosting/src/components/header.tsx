@@ -40,7 +40,7 @@ const Header = () => {
 
 				<nav className="navbar navbar-expand-lg navbar-light bg-light">
 					<div className="container-fluid" style={{ alignItems: 'center', display: 'flex', justifyContent: 'space-between' }}>
-						<div style={{ backgroundImage: `url(${backgroundHeadImg})`, backgroundRepeat: 'no-repeat', height: '12vh', width: '30vw' }} />
+						<div style={{ backgroundImage: `url(${backgroundHeadImg})`, backgroundRepeat: 'no-repeat', height: '12vh', width: '40vw' }} />
 						<div style={{ minWidth: 300 }}>
 							<Menu items={items as any} onSelect={onSelect} />
 						</div>

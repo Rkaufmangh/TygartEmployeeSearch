@@ -23,6 +23,9 @@ service cloud.firestore {
       allow create: if isCurrentUserRecord(userId) || isUserAdmin();
       allow delete: if isUserAdmin();
     }
+    match /employees/{document=**}{
+    	allow read: if isUserAdmin();
+    }
     match /employees/{empId}{
     	allow read, update,create: if isCurrentUserRecord(empId) || isUserAdmin();
       allow delete: if isUserAdmin();
