@@ -3,22 +3,14 @@ import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../logic/AuthContext";
 import { EditDescriptor } from "@progress/kendo-react-data-tools";
 import { Grid, GridColumn, GridCustomCellProps, GridDataStateChangeEvent, GridFilterChangeEvent, GridSelectionChangeEvent, GridToolbar } from "@progress/kendo-react-grid";
-import { CompositeFilterDescriptor, SortDescriptor, process } from "@progress/kendo-data-query";
+import { process } from "@progress/kendo-data-query";
 import { Button } from "@progress/kendo-react-buttons";
 import { editEmployee, deleteEmployee } from "../firebase/firestore";
 import { Employee } from "../models/employee";
 import EmployeeEdit from "../components/form/employee-edit";
 import { EmployeeContext } from "../logic/EmployeeContext";
-
-interface GridState {
-	sort?: SortDescriptor[];
-	take?:number;
-	skip?: number;
-	filter?: CompositeFilterDescriptor;
-}
-interface EditCommandCellProps extends GridCustomCellProps {
-	enterEdit: (item: Employee) => void;
-}
+import { EditCommandCellProps } from "../models/kendo-models";
+import { GridState } from "../models/kendo-models";
 
 const EditCommandCell = (props: EditCommandCellProps) => {
 	return (
@@ -30,7 +22,7 @@ const EditCommandCell = (props: EditCommandCellProps) => {
 	);
 };
 export default function Employees(){
-const navigate = useNavigate();
+	const navigate = useNavigate();
 	const context = useContext<AuthContext | null>(AuthContext);
 	const {employees} = useContext<EmployeeContext>(EmployeeContext);
 	// Redirect non-admins to their profile

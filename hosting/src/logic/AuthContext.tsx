@@ -15,6 +15,7 @@ const AuthProvider = ({children}:any)=>{
     const [isAdmin, setIsAdmin] = useState(false);
 
     async function setUser(u:any, claims:any){
+		console.log('AuthContext setUser called with user:', u, 'claims:', claims);
         setCurrentUser(u);
         // default
         setIsAdmin(false);

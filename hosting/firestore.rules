@@ -5,17 +5,28 @@ service cloud.firestore {
   	function isUserLoggedIn(){
     	return request.auth.uid != null;
     }
+    function isCurrentUserRecord(userId){
+    	return request.auth.uid == userId
+    }
     function isUserAdmin(){
-    	return request.auth.token.role == 'admin' || get(/database/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    	return request.auth != null && (request.auth.token.role == 'admin' ||
+        get(
+          /databases/$(database)/documents/users/$(request.auth.uid)
+        ).data.role == 'admin');
+    }
+    match /{document=**} {
+    	allow read: if isUserLoggedIn() && request.auth.token.firebase.sign_in_provider != 'anonymous';
     }
   	match /users/{userId}{
     	allow read: if isUserLoggedIn() && request.auth.token.firebase.sign_in_provider != 'anonymous';
-      allow update: if request.auth.uid == userId || isUserAdmin();
-      allow create: if isUserAdmin();
+      allow update: if isCurrentUserRecord(userId) || isUserAdmin();
+      allow create: if isCurrentUserRecord(userId) || isUserAdmin();
       allow delete: if isUserAdmin();
     }
-	match /employees/{id}  {
-		allow read, update, create, delete: if isUserAdmin();
-	}
+    match /employees/{empId}{
+    	allow read, update,create: if isCurrentUserRecord(empId) || isUserAdmin();
+      allow delete: if isUserAdmin();
+    }
+    
   }
 }

@@ -34,6 +34,7 @@ export const addUser = async (user: AnyUser) => {
 
 export const getUser = async (id: string) => {
   const snap = await getDoc(doc(db, 'users', id));
+  console.log('Fetched user:', snap.data());
   return snap.exists() ? { id: snap.id, ...snap.data() } : null;
 }
 
@@ -60,4 +61,12 @@ export const deleteUser = async (id:string)=>{
 export const fetchUsersList = async ()=>{
   const snap = await getDocs(collection(db, 'users'));
   return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+}
+export const getUsers = (setUsers: (users: AnyUser[])=>void)=>{
+	fetchUsersList().then((list)=>{
+		const arr = list as AnyUser[];
+		setUsers(arr);
+	}).catch(()=>setUsers([]));
+	const unsubscribe = ()=>{};
+	return unsubscribe;
 }

@@ -5,13 +5,16 @@ import './index.css';
 import App from './App.tsx';
 import { AuthProvider } from "./logic/AuthContext";
 import { EmployeeProvider } from './logic/EmployeeContext.tsx';
+import { UserProvider } from './logic/user-context.tsx';
 
 createRoot(document.getElementById('root')!).render(
 	<StrictMode>
 		<Router>
 			<AuthProvider>
 				<EmployeeProvider>
-					<App />
+					<UserProvider>
+						<App />
+					</UserProvider>
 				</EmployeeProvider>
 			</AuthProvider>
 		</Router>
